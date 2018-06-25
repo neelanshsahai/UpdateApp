@@ -74,7 +74,7 @@ public class InstallAPK extends AsyncTask<String, Integer, Boolean> {
             //Download the APK from the link
 
             //TODO: <@Praksh2403> app install karne se pehle app settings me jaake storage permisions de dena
-
+            // Call krke bta deta bsdk, aadha time to yahi waste ho gya.
             URL url = new URL("https://www.appsapk.com/downloading/latest/SHAREit%20-%20Transfer%20&%20Share-3.8.8_ww.apk");
             c = (HttpURLConnection) url.openConnection();
             c.connect();
@@ -104,7 +104,7 @@ public class InstallAPK extends AsyncTask<String, Integer, Boolean> {
                     publishProgress((int) (total*100)/fileSize);
                 output.write(data, 0, count);
             }
-
+            Log.e("HEre", "ere");
             installApkFile(PATH, outFile);
 
         } catch (Exception e) {
@@ -116,10 +116,13 @@ public class InstallAPK extends AsyncTask<String, Integer, Boolean> {
 
     private void installApkFile(String location, File f) {
         Uri apkUri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID+".provider", f);
+        Log.e("sds", apkUri.toString());
         Intent install = new Intent(Intent.ACTION_INSTALL_PACKAGE);
-        install.setDataAndType(apkUri, "application/vnd.android.package-archive");
-//        install.putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true);
+        install.setDataAndType(Uri.fromFile(new File(Environment.getExternalStorageDirectory() + "/NEELANSH/" + "app.apk")), "application/vnd.android.package-archive");
+        //install.putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true);
 //        install.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        Log.e("sds", apkUri.toString());
+
         context.startActivity(install);
     }
 }
