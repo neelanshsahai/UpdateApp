@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Environment;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
@@ -82,18 +83,21 @@ public class InstallAPK extends AsyncTask<String, Integer, Boolean> {
             int fileSize = c.getContentLength();
 
             String PATH = Environment.getExternalStorageDirectory()+"/NEELANSH/";
-            File file = new File(PATH);
-            File outFile = new File(file, "app.apk");
+//            File file = new File(PATH);
+//            File outFile = new File(file, "app.apk");
+/*
             if (!file.exists()) {
                 file.mkdirs();
             }
             if (!outFile.exists()) {
                 outFile.createNewFile();
             }
+*/
 
             inputStream = c.getInputStream();
-            output = new FileOutputStream(outFile.getAbsolutePath());
+            //output = new FileOutputStream(outFile.getAbsolutePath());
 
+/*
             byte[] data = new byte[4096];
             long total = 0;
             int count, i=0;
@@ -104,8 +108,9 @@ public class InstallAPK extends AsyncTask<String, Integer, Boolean> {
                     publishProgress((int) (total*100)/fileSize);
                 output.write(data, 0, count);
             }
+*/
 
-            installApkFile(PATH, outFile);
+            installApkFile(PATH, new File(PATH+"app.apk"));
 
         } catch (Exception e) {
             Log.e("doInBackground()...", String.valueOf(e));
@@ -115,11 +120,19 @@ public class InstallAPK extends AsyncTask<String, Integer, Boolean> {
     }
 
     private void installApkFile(String location, File f) {
-        Uri apkUri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID+".provider", f);
-        Intent install = new Intent(Intent.ACTION_INSTALL_PACKAGE);
-        install.setDataAndType(apkUri, "application/vnd.android.package-archive");
-//        install.putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true);
-//        install.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(install);
+
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
+            Uri apkUri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID+".provider", f);
+            Intent install = new Intent(Intent.ACTION_INSTALL_PACKAGE);
+            install.setData(apkUri);
+            install.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            context.startActivity(install);
+        } else {
+            Uri apkUri = Uri.fromFile(f);
+            Intent install = new Intent(Intent.ACTION_VIEW);
+            install.setDataAndType(apkUri, "application/vnd.android.package-archive");
+            install.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(install);
+        }
     }
 }
